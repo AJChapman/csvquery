@@ -24,6 +24,7 @@ dependencies:
 - exceptions
 - megaparsec >= 6.3.0 && < 7
 - text
+- boxes
 
 library:
   source-dirs: src

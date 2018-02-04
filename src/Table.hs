@@ -3,6 +3,7 @@ module Table
     ( Row(Row, rCells)
     , Table(Table, tHeaders, tRows)
     , tabularise
+    , tableAsRows, tableAsColumns
     , rowCount, columnCount, columnIndex, rowLength
     , filterTable
     , getRow, getColumn
@@ -15,12 +16,21 @@ import Data.List
 import Data.Typeable
 
 -- | A row in the table.
-newtype Row a = Row { rCells :: [a] } deriving (Eq, Show, Foldable)
+newtype Row a = Row { rCells :: [a] } deriving (Eq, Show, Foldable, Functor)
 
 -- | A table, which contains a header row and zero or more data rows.
 data Table a = Table { tHeaders :: Row a   -- ^ The table's header row
                      , tRows    :: [Row a] -- ^ The data rows
                      } deriving (Eq, Show)
+
+instance Functor Table where
+    fmap f (Table h rs) = Table (fmap f h) (fmap (fmap f) rs)
+
+tableAsRows :: Table a -> [[a]]
+tableAsRows (Table h rs) = (rCells h) : (map rCells rs)
+
+tableAsColumns :: Table a -> [[a]]
+tableAsColumns = transpose . tableAsRows
 
 -- | The number of rows in the table, not including the header row.
 rowCount :: Table a -> Int

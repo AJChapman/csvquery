@@ -4,6 +4,7 @@ import Options.Applicative
 import Data.Semigroup ((<>))
 
 import CSVQuery
+import Print
 
 data Options = Options
     { csvfile :: FilePath
@@ -25,4 +26,4 @@ main = run =<< execParser opts
 run :: Options -> IO ()
 run (Options f) = do
     table <- readCSVTableFile f
-    print $ show table
+    printTable table
