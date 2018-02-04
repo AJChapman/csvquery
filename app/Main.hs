@@ -1,6 +1,8 @@
 module Main where
 
-import Lib
+import CSVQuery
 
 main :: IO ()
-main = someFunc
+main = do
+    table <- readCSVTableFile "test/CSVfile.csv"
+    print $ show table
