@@ -3,7 +3,7 @@ module Table
     ( Row(Row, rCells)
     , Table(Table, tHeaders, tRows)
     , tabularise
-    , rowCount, columnCount, rowLength
+    , rowCount, columnCount, columnIndex, rowLength
     , filterTable
     , getRow, getColumn
     ) where
@@ -34,19 +34,21 @@ columnCount = length . tHeaders
 rowLength :: Row a -> Int
 rowLength = length . rCells
 
+-- | Error type for table operations
 data TableError = NoRowsError
                 | ColumnCountError Int
                 | UnknownColumnError String
                 | RowIndexOutOfBoundsError Int Int
                 deriving (Eq, Ord, Typeable)
 
+-- | How to display table errors
 instance Show TableError where
     show NoRowsError
       = "No rows found, so none could be assigned as the table header."
     show (ColumnCountError n)
       = "Rows do not all have the same number of columns as the header, which has " ++ show n ++ "."
     show (UnknownColumnError h)
-      = "Could not find a column labeled '" ++ h ++ "'."
+      = "Could not find a column labeled " ++ h ++ "."
     show (RowIndexOutOfBoundsError i n)
       = "Could not find row " ++ show i ++ ", as there are only " ++ show n ++ " rows."
 
@@ -70,6 +72,9 @@ tabularise (x:xs) =
 filterTable :: (Row a -> Bool) -> Table a -> Table a
 filterTable f (Table h rs) = Table h (filter f rs)
 
+-- | Return the ith row of the table, not including the table header. So the
+-- first row below the table header is row 0. Throws a RowIndexOutOfBoundsError
+-- if the row doesn't exist.
 getRow :: MonadThrow m => Int -> Table a -> m (Row a)
 getRow i (Table _ rs) =
     let n = length rs
@@ -77,9 +82,24 @@ getRow i (Table _ rs) =
            then throwM (RowIndexOutOfBoundsError i n)
            else return (rs !! i)
 
-getColumn :: (MonadThrow m, Eq a, Show a) => a -> Table a -> m [a]
-getColumn c (Table h rs) =
+-- | Return the index of the column with the given header, or throw an
+-- UnknownColumnError.  If more than one column with this header exists then
+-- only the first will be returned.
+columnIndex :: (MonadThrow m, Eq a, Show a)
+            => a  -- ^ The column header. Label must match exactly (case-sensitive).
+            -> Table a -> m Int
+columnIndex c (Table h _) =
     let mi = elemIndex c (rCells h)
      in case mi of
           Nothing -> throwM (UnknownColumnError (show c))
-          Just i -> return (map ((!! i) . rCells) rs)
+          Just i -> return i
+
+-- | Return the list of fields in the column with the given header, or throw an
+-- UnknownColumnError.  If more than one column with this header exists then
+-- only the first will be returned.
+getColumn :: (MonadThrow m, Eq a, Show a)
+          => a -- ^ The column header. Label must match exactly (case-sensitive).
+          -> Table a -> m [a]
+getColumn c t@(Table _ rs) = do
+    i <- columnIndex c t
+    return (map ((!! i) . rCells) rs)
