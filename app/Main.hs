@@ -12,7 +12,8 @@ import Table
 data Options = Options
     { csvfile :: FilePath
     , filter  :: String
-    , field   :: String }
+    , field   :: String
+    , count   :: Bool }
 
 options :: Parser Options
 options = Options
@@ -28,7 +29,11 @@ options = Options
                 (long "field"
                 <> metavar "FIELD"
                 <> value ""
-                <> help "Select a single field to display. If not specified then the data will be displayed in a table.")
+                <> help "Select a single field to display. If not specified then the data will be displayed in a table. Ignored when the --count flag is used.")
+            <*> switch
+                (long "count"
+                <> short 'c'
+                <> help "Specify to print the number of rows in the file which match the current filter.")
 
 main :: IO ()
 main = run =<< execParser opts
@@ -38,10 +43,12 @@ main = run =<< execParser opts
                          <> header "csvquery - a CSV file querier")
 
 run :: Options -> IO ()
-run (Options file filterString field) = do
+run (Options file filterString field count) = do
     table  <- readCSVTableFile file
     filter <- parseFilter (T.pack filterString)
     table' <- applyFilter filter table
-    if field == ""
-       then printTable table'
-       else printField (T.pack field) table'
+    if count
+       then print (rowCount table')
+       else if field == ""
+               then printTable table'
+               else printField (T.pack field) table'
