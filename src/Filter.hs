@@ -1,5 +1,5 @@
 module Filter
-    ( Filter
+    ( Filter(NullFilter, Constraint)
     , parseFilter
     , applyFilter
     ) where
@@ -19,8 +19,6 @@ import Table
 --                  "Name=Dave" : Show only rows whose 'Name' column contains the value 'Dave'.
 data Filter a = NullFilter
               | Constraint { cColumn :: a, cValue :: a }
-             -- | And { aLeft :: Filter a, aRight :: Filter a }
-             -- | Or { oLeft :: Filter a, oRight :: Filter a }
              deriving (Eq, Show)
 
 -- | Apply the given 'Filter' to the table. The resultant table will
