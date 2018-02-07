@@ -7,8 +7,10 @@ import CSVQuery
 import Filter
 import Table
 
-testFile :: FilePath
-testFile = "test/CSVfile.csv"
+testFile1, testFile2, testFile3 :: FilePath
+testFile1 = "test/CSVfile.csv"
+testFile2 = "test/CSVfile-fixed.csv"
+testFile3 = "test/CSVfile-unix.csv"
 
 readTestFile :: FilePath -> IO (Table T.Text)
 readTestFile f = readCSVTableFile f
@@ -30,16 +32,18 @@ testOneBob table =
                  "filtering with Name=Bob gives us a single row"
                  (rowCount table) 1)
 
-tests table filter filteredTable = TestList
-    [ TestLabel "testRows" (testRows table)
-    , TestLabel "testCols" (testCols table)
-    , TestLabel "testFilterParses" (testFilterParses filter)
-    , TestLabel "testOneBob" (testOneBob filteredTable)
-    ]
+testsForFile file = do
+    filter <- testFilter
+    table <- readTestFile file
+    filteredTable <- applyFilter filter table
+    return (TestList [ TestLabel "testRows" (testRows table)
+                     , TestLabel "testCols" (testCols table)
+                     , TestLabel "testFilterParses" (testFilterParses filter)
+                     , TestLabel "testOneBob" (testOneBob filteredTable)])
 
 main :: IO Counts
 main = do
-    table <- readTestFile testFile
-    filter <- testFilter
-    filteredTable <- applyFilter filter table
-    runTestTT (tests table filter filteredTable)
+    t1 <- testsForFile testFile1
+    t2 <- testsForFile testFile2
+    t3 <- testsForFile testFile3
+    runTestTT (TestList [t1, t2, t3])

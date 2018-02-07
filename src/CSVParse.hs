@@ -36,11 +36,11 @@ isCSVControlChar c = isNewlineChar c || isSeparatorChar c
 -- | Parse a single CSV field, with any characters allowed except for
 -- the separator char and end-of-line control characters.
 field :: Parser T.Text
-field = takeWhileP (Just "field text") (not . isCSVControlChar)
+field = takeWhile1P (Just "field text") (not . isCSVControlChar)
 
 -- | Parse a CSV row, separated by the separator char, into Text fields.
 row :: Parser [T.Text]
-row = field `sepBy` separator
+row = field `sepBy1` separator
 
 -- | Parse a strange end-of-line sequence ("\r\r\n"). This was found in the test data.
 strangeEOL :: Parser T.Text
@@ -53,4 +53,4 @@ csvEOL = eol <|> strangeEOL <?> "end of line"
 -- | Parse a CSV file into a list of rows, where each row is a list
 -- of Text fields.
 csv :: Parser [[T.Text]]
-csv = row `sepBy` csvEOL
+csv = row `sepEndBy1` csvEOL
