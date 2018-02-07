@@ -1,6 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 module CSVQuery
-    ( readCSVTableFile
+    ( parseCSV
+    , parseCSVTable
+    , readCSVTableFile
     ) where
 
 import           Control.Monad.Catch     (MonadThrow, throwM)
