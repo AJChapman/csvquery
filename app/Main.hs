@@ -10,11 +10,13 @@ import Print
 import Table
 
 data Options = Options
-    { csvfile :: FilePath
-    , filter  :: String
-    , field   :: String
-    , count   :: Bool }
+    { csvfile :: FilePath -- ^ The CSV file to read
+    , filter  :: String   -- ^ A filter to apply
+    , field   :: String   -- ^ A field to display
+    , count   :: Bool     -- ^ Whether to simply display a count of matched rows
+    }
 
+-- | A parser for the command-line options
 options :: Parser Options
 options = Options
             <$> strArgument
@@ -35,13 +37,7 @@ options = Options
                 <> short 'c'
                 <> help "Specify to print the number of rows in the file which match the current filter.")
 
-main :: IO ()
-main = run =<< execParser opts
-    where opts = info (options <**> helper)
-                      (fullDesc
-                         <> progDesc "Read FILE as a CSV file and print its contents or answer queries about it"
-                         <> header "csvquery - a CSV file querier")
-
+-- | Run with the given options.
 run :: Options -> IO ()
 run (Options file filterString field count) = do
     table  <- readCSVTableFile file
@@ -52,3 +48,12 @@ run (Options file filterString field count) = do
        else if field == ""
                then printTable table'
                else printField (T.pack field) table'
+
+-- | The main function. Will take options from the command line.
+main :: IO ()
+main = run =<< execParser opts
+    where opts = info (options <**> helper)
+                      (fullDesc
+                         <> progDesc "Read FILE as a CSV file and print its contents or answer queries about it"
+                         <> header "csvquery - a CSV file querier")
+

@@ -26,9 +26,11 @@ data Table a = Table { tHeaders :: Row a   -- ^ The table's header row
 instance Functor Table where
     fmap f (Table h rs) = Table (fmap f h) (fmap (fmap f) rs)
 
+-- | Convert the table into a list of rows
 tableAsRows :: Table a -> [[a]]
 tableAsRows (Table h rs) = (rCells h) : (map rCells rs)
 
+-- | Convert the table into a list of columns
 tableAsColumns :: Table a -> [[a]]
 tableAsColumns = transpose . tableAsRows
 
