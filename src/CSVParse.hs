@@ -21,6 +21,9 @@ separatorChar = ','
 separator :: Parser Char
 separator = char separatorChar
 
+quote :: Parser Char
+quote = char '"'
+
 -- | Is this the separator char?
 isSeparatorChar :: Char -> Bool
 isSeparatorChar = (==) separatorChar
@@ -38,9 +41,12 @@ isCSVControlChar c = isNewlineChar c || isSeparatorChar c
 field :: Parser T.Text
 field = takeWhile1P (Just "field text") (not . isCSVControlChar)
 
+quotedField :: Parser T.Text
+quotedField = between quote quote (takeWhile1P (Just "quoted text") ((/=) '"'))
+
 -- | Parse a CSV row, separated by the separator char, into Text fields.
 row :: Parser [T.Text]
-row = field `sepBy1` separator
+row = (quotedField <|> field) `sepBy1` separator
 
 -- | Parse a strange end-of-line sequence ("\r\r\n"). This was found in the test data.
 strangeEOL :: Parser T.Text

@@ -11,6 +11,7 @@ testFile1, testFile2, testFile3 :: FilePath
 testFile1 = "test/CSVfile.csv"
 testFile2 = "test/CSVfile-fixed.csv"
 testFile3 = "test/CSVfile-unix.csv"
+testFile4 = "test/CSVfile-quotes.csv"
 
 readTestFile :: FilePath -> IO (Table T.Text)
 readTestFile f = readCSVTableFile f
@@ -53,4 +54,5 @@ main = do
     t1 <- testsForFile testFile1
     t2 <- testsForFile testFile2
     t3 <- testsForFile testFile3
-    runTestTT (TestList [t1, t2, t3])
+    t4 <- testsForFile testFile4
+    runTestTT (TestList [t1, t2, t3, t4])
