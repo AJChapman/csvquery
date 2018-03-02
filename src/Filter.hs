@@ -4,15 +4,15 @@ module Filter
     , applyFilter
     ) where
 
-import Control.Monad (void)
-import Control.Monad.Catch
-import qualified Data.Text as T
-import Data.Void
-import Text.Megaparsec
-import Text.Megaparsec.Char
+import           Control.Monad              (void)
+import           Control.Monad.Catch
+import qualified Data.Text                  as T
+import           Data.Void
+import           Text.Megaparsec
+import           Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
 
-import Table
+import           Table
 
 -- | Table filtering, based on column values.
 -- Example filters: "*"         : Don't filter
@@ -27,7 +27,7 @@ applyFilter :: (MonadThrow m, Eq a, Show a) => Filter a -> Table a -> m (Table a
 applyFilter NullFilter t = return t
 applyFilter (Constraint col val) t = do
     i <- columnIndex col t
-    let rowFilter = (\r -> ((rCells r) !! i) == val) in
+    let rowFilter r = (rCells r !! i) == val in
         return (filterTable rowFilter t)
 
 type Parser = Parsec Void T.Text
@@ -44,7 +44,7 @@ equals :: Parser ()
 equals = void (lexeme (char '=')) <?> "equals symbol"
 
 field :: Parser T.Text
-field = lexeme (takeWhileP (Just "field text") (not . (== '=')))
+field = lexeme (takeWhileP (Just "field text") (/= '='))
 
 constraintParser :: Parser (Filter T.Text)
 constraintParser = do

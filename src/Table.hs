@@ -9,11 +9,11 @@ module Table
     , getRow, getColumn
     ) where
 
-import Control.Monad
-import Control.Monad.Catch
-import qualified Data.Text as T
-import Data.List
-import Data.Typeable
+import           Control.Monad
+import           Control.Monad.Catch
+import           Data.List
+import qualified Data.Text           as T
+import           Data.Typeable
 
 -- | A row in the table.
 newtype Row a = Row { rCells :: [a] } deriving (Eq, Show, Foldable, Functor)
@@ -28,7 +28,7 @@ instance Functor Table where
 
 -- | Convert the table into a list of rows
 tableAsRows :: Table a -> [[a]]
-tableAsRows (Table h rs) = (rCells h) : (map rCells rs)
+tableAsRows (Table h rs) = rCells h : map rCells rs
 
 -- | Convert the table into a list of columns
 tableAsColumns :: Table a -> [[a]]
@@ -74,11 +74,11 @@ tabularise :: MonadThrow m => [ Row a ] -> m (Table a)
 tabularise []     = throwM NoRowsError
 tabularise (x:xs) =
     let n = length x in
-        if (all (lengthIs n) xs)
+        if all (lengthIs n) xs
            then return (Table x xs)
            else throwM (ColumnCountError n)
        where lengthIs :: Int -> Row a -> Bool
-             lengthIs n r = n == (rowLength r)
+             lengthIs n r = n == rowLength r
 
 -- | Filter the table to contain only rows matching the given predicate.
 filterTable :: (Row a -> Bool) -> Table a -> Table a
@@ -90,7 +90,7 @@ filterTable f (Table h rs) = Table h (filter f rs)
 getRow :: MonadThrow m => Int -> Table a -> m (Row a)
 getRow i (Table _ rs) =
     let n = length rs
-     in if (i >= n)
+     in if i >= n
            then throwM (RowIndexOutOfBoundsError i n)
            else return (rs !! i)
 
@@ -104,7 +104,7 @@ columnIndex c (Table h _) =
     let mi = elemIndex c (rCells h)
      in case mi of
           Nothing -> throwM (UnknownColumnError (show c))
-          Just i -> return i
+          Just i  -> return i
 
 -- | Return the list of fields in the column with the given header, or throw an
 -- UnknownColumnError.  If more than one column with this header exists then

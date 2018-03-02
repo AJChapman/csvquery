@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+
 module CSVParse
     ( csv
     ) where
@@ -42,7 +43,7 @@ field :: Parser T.Text
 field = takeWhile1P (Just "field text") (not . isCSVControlChar)
 
 quotedField :: Parser T.Text
-quotedField = between quote quote (takeWhile1P (Just "quoted text") ((/=) '"'))
+quotedField = between quote quote (takeWhile1P (Just "quoted text") ('"' /=))
 
 -- | Parse a CSV row, separated by the separator char, into Text fields.
 row :: Parser [T.Text]

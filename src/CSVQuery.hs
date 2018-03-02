@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 module CSVQuery
     ( parseCSV
     , parseCSVTable

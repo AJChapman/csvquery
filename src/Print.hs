@@ -4,11 +4,11 @@ module Print
     , printField
     ) where
 
-import Data.List
-import qualified Data.Text as T
-import Text.PrettyPrint.Boxes
+import           Data.List
+import qualified Data.Text              as T
+import           Text.PrettyPrint.Boxes
 
-import Table
+import           Table
 
 boxTable :: Table T.Text -> Box
 boxTable t =
@@ -25,7 +25,7 @@ printTable :: Table T.Text -> IO ()
 printTable = printBox . boxTable
 
 boxColumn :: [T.Text] -> Box
-boxColumn = vcat left . (fmap (text . T.unpack))
+boxColumn = vcat left . fmap (text . T.unpack)
 
 -- | Print the column with the given heading
 printField :: T.Text -> Table T.Text -> IO ()
